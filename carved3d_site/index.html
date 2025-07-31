@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Carved3D</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Carved3D</h1>
+    <div class="cart" onclick="openCartPopup()">🛒<span id="cart-count">0</span></div>
+  </header>
+
+  <main>
+    <div class="center-title">
+      <h2>Carved3D</h2>
+      <p>Create custom mini snowboards in any color and pattern you like. Design your own and get it delivered!</p>
+      <button onclick="openShop()">Shop Now</button>
+    </div>
+  </main>
+
+  <div class="popup" id="shopPopup">
+    <div class="popup-content">
+      <span class="close" onclick="closeShop()">&times;</span>
+      <h2>Shop</h2>
+      <div class="customizer">
+        <div class="snowboard" id="snowboard"></div>
+        <input type="color" id="baseColor" value="#ffffff" onchange="updateSnowboard()" />
+        <select id="pattern" onchange="updateSnowboard()">
+          <option value="none">No Pattern</option>
+          <option value="stripes">Stripes</option>
+          <option value="dots">Dots</option>
+          <option value="grid">Grid</option>
+        </select>
+        <input type="color" id="patternColor" value="#000000" onchange="updateSnowboard()" />
+        <button onclick="finishDesign()">Finish</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="popup" id="cartPopup">
+    <div class="popup-content">
+      <span class="close" onclick="closeCart()">&times;</span>
+      <h2>Your Cart</h2>
+      <ul id="cart-items"></ul>
+      <p>Total: $<span id="total-price">0.00</span></p>
+      <button class="checkout">Checkout</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

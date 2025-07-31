@@ -1,0 +1,73 @@
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: url('snowy-bg.jpg') center center/cover no-repeat;
+  color: white;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.cart {
+  cursor: pointer;
+  font-size: 24px;
+}
+.center-title {
+  text-align: center;
+  margin-top: 20vh;
+}
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.popup {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  justify-content: center;
+  align-items: center;
+}
+.popup-content {
+  background: white;
+  color: black;
+  padding: 20px;
+  position: relative;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 8px;
+}
+.close {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  cursor: pointer;
+  font-size: 24px;
+}
+.customizer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+.snowboard {
+  width: 300px;
+  height: 60px;
+  border-radius: 30px;
+  background: white;
+  border: 2px solid black;
+}
+.checkout {
+  background-color: green;
+  color: white;
+  font-weight: bold;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+}
