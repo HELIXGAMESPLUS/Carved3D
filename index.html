@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Carved3d</title>
   <style>
     body {
@@ -125,6 +125,7 @@
       display: block;
       border-radius: 6px;
       border: 1px solid #ccc;
+      font-size: 1rem;
     }
 
     #checkoutModal .finish-btn {
@@ -132,6 +133,14 @@
       background: #28a745;
       color: white;
       font-size: 1.2rem;
+      cursor: pointer;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    #checkoutModal .finish-btn.enabled {
+      opacity: 1;
+      pointer-events: auto;
     }
   </style>
 </head>
@@ -149,18 +158,21 @@
   <div class="popup" id="popup">
     <div class="close" onclick="closePopup()">✕</div>
     <h2>Shop</h2>
-    <div class="snowboard-outline" id="snowboardPreview" style="background: repeating-linear-gradient(45deg, rgb(0, 110, 255) 0px, rgb(0, 110, 255) 10px, transparent 10px, transparent 20px) rgb(205, 66, 66);"></div>
+    <div class="snowboard-outline" id="snowboardPreview"></div>
     <label>Base Color</label>
-    <input type="color" class="color-wheel" id="baseColor">
+    <input type="color" class="color-wheel" id="baseColor" value="#c82d2d" />
     <label>Pattern</label>
     <select class="pattern-select" id="patternSelect">
       <option value="none">None</option>
       <option value="stripes">Stripes</option>
       <option value="dots">Dots</option>
       <option value="gradient">Gradient</option>
+      <option value="checker">Checker</option>
+      <option value="waves">Waves</option>
+      <option value="hex">Hexagons</option>
     </select>
     <label>Pattern Color</label>
-    <input type="color" class="pattern-color" id="patternColor">
+    <input type="color" class="pattern-color" id="patternColor" value="#00f6fa" />
     <button class="finish-btn" onclick="finishDesign()">Finish</button>
   </div>
 
@@ -170,27 +182,33 @@
     <h2>Your Cart</h2>
     <div id="cartItems"></div>
     <p>Total: $<span id="totalPrice">0.00</span></p>
-    <button class="finish-btn" id="openCheckoutBtn">Checkout</button>
+    <button class="finish-btn" id="openCheckoutBtn" disabled>Checkout</button>
   </div>
 
   <!-- Checkout Modal -->
   <div class="popup" id="checkoutModal">
     <div class="close" onclick="closeCheckout()">✕</div>
     <h2>Checkout</h2>
-    <input type="text" placeholder="Card Number">
-    <input type="text" placeholder="CVV">
-    <input type="text" placeholder="Expiration (MM/YY)">
-    <input type="text" placeholder="Name on Card">
-    <input type="email" placeholder="Email">
-    <input type="text" placeholder="Billing Address">
-    <button class="finish-btn" id="payBtn">Pay $0.00</button>
+    <input type="text" id="cardNumber" placeholder="Card Number" />
+    <input type="text" id="cvv" placeholder="CVV" maxlength="4" />
+    <input type="text" id="expiration" placeholder="Expiration (MM/YY)" maxlength="5" />
+    <input type="text" id="nameOnCard" placeholder="Name on Card" />
+    <input type="email" id="email" placeholder="Email" />
+    <input type="text" id="billingAddress" placeholder="Billing Address" />
+    <button class="finish-btn" id="payBtn" disabled>Pay $0.00</button>
   </div>
 
   <script>
     let cart = [];
 
+    const baseColorInput = document.getElementById("baseColor");
+    const patternSelect = document.getElementById("patternSelect");
+    const patternColorInput = document.getElementById("patternColor");
+    const snowboardPreview = document.getElementById("snowboardPreview");
+
     function openPopup() {
       document.getElementById("popup").style.display = "block";
+      updatePreview();
     }
 
     function closePopup() {
@@ -198,6 +216,10 @@
     }
 
     function openCart() {
+      if (cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
+      }
       document.getElementById("cartPopup").style.display = "block";
       updateCart();
     }
@@ -207,13 +229,15 @@
     }
 
     function finishDesign() {
-      const base = document.getElementById("baseColor").value;
-      const pattern = document.getElementById("patternSelect").value;
-      const patternColor = document.getElementById("patternColor").value;
+      const base = baseColorInput.value;
+      const pattern = patternSelect.value;
+      const patternColor = patternColorInput.value;
 
       cart.push({ base, pattern, patternColor });
       document.getElementById("cart-count").innerText = cart.length;
       closePopup();
+      updateCart();
+      document.getElementById("openCheckoutBtn").disabled = false;
     }
 
     function updateCart() {
@@ -222,56 +246,131 @@
       cartItems.innerHTML = "";
 
       cart.forEach((item, index) => {
+        const patternBG = getPattern(item.pattern, item.patternColor);
+        const bgImage = patternBG === "none" ? "none" : patternBG;
+
         const div = document.createElement("div");
         div.innerHTML = `
-          <div class="item-preview" style="background: ${item.base};
-            background-image: ${getPattern(item.pattern, item.patternColor)};">
-          </div>
+          <div class="item-preview" style="
+            background-image: ${bgImage};
+            background-color: ${item.base};
+            background-repeat: repeat;
+            background-size: 40px 40px;
+            background-position: center bottom;
+          "></div>
           <p>Item ${index + 1}</p>
         `;
         cartItems.appendChild(div);
       });
 
       total.innerText = (cart.length * 5).toFixed(2);
+      // Update checkout button enabled state
+      document.getElementById("openCheckoutBtn").disabled = cart.length === 0;
+      document.getElementById("payBtn").innerText = `Pay $${(cart.length * 5).toFixed(2)}`;
     }
 
     function getPattern(pattern, color) {
-      switch(pattern) {
+      switch (pattern) {
         case "stripes":
           return `repeating-linear-gradient(45deg, ${color} 0 10px, transparent 10px 20px)`;
         case "dots":
-          return `radial-gradient(${color} 10%, transparent 11%)`;
+          // Dots pattern with two radial gradients for better dot effect
+          return `radial-gradient(${color} 4px, transparent 5px), radial-gradient(${color} 4px, transparent 5px)`;
         case "gradient":
           return `linear-gradient(90deg, ${color}, white)`;
+        case "checker":
+          return `repeating-linear-gradient(0deg, ${color} 0 20px, transparent 20px 40px), repeating-linear-gradient(90deg, ${color} 0 20px, transparent 20px 40px)`;
+        case "waves":
+          // SVG wave pattern encoded
+          return `url("data:image/svg+xml;utf8,<svg width='20' height='20' xmlns='http://www.w3.org/2000/svg'><path d='M0 10 Q5 0 10 10 T20 10' stroke='${encodeURIComponent(color)}' fill='none' stroke-width='2'/></svg>")`;
+        case "hex":
+          // SVG hex pattern encoded
+          return `url("data:image/svg+xml;utf8,<svg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><polygon points='50,0 100,25 100,75 50,100 0,75 0,25' fill='${encodeURIComponent(color)}'/></svg>")`;
         default:
           return "none";
       }
     }
 
-    document.getElementById("patternSelect").addEventListener("change", updatePreview);
-    document.getElementById("baseColor").addEventListener("input", updatePreview);
-    document.getElementById("patternColor").addEventListener("input", updatePreview);
-
     function updatePreview() {
-      const preview = document.getElementById("snowboardPreview");
-      const base = document.getElementById("baseColor").value;
-      const pattern = document.getElementById("patternSelect").value;
-      const patternColor = document.getElementById("patternColor").value;
+      const base = baseColorInput.value;
+      const pattern = patternSelect.value;
+      const patternColor = patternColorInput.value;
 
-      preview.style.background = base;
-      preview.style.backgroundImage = getPattern(pattern, patternColor);
+      const patternBG = getPattern(pattern, patternColor);
+
+      snowboardPreview.style.backgroundImage = patternBG === "none" ? "none" : patternBG;
+      snowboardPreview.style.backgroundColor = base;
+      snowboardPreview.style.backgroundRepeat = "repeat";
+      snowboardPreview.style.backgroundSize = "40px 40px";
+      snowboardPreview.style.backgroundPosition = "center bottom";
     }
 
-    // Checkout Modal
-    document.getElementById("openCheckoutBtn").addEventListener("click", () => {
-      const total = cart.length * 5;
-      document.getElementById("payBtn").innerText = `Pay $${total.toFixed(2)}`;
-      document.getElementById("checkoutModal").style.display = "block";
+    baseColorInput.addEventListener("input", updatePreview);
+    patternSelect.addEventListener("change", updatePreview);
+    patternColorInput.addEventListener("input", updatePreview);
+
+    // Checkout Modal Controls
+    const checkoutModal = document.getElementById("checkoutModal");
+    const openCheckoutBtn = document.getElementById("openCheckoutBtn");
+    const payBtn = document.getElementById("payBtn");
+
+    openCheckoutBtn.addEventListener("click", () => {
+      checkoutModal.style.display = "block";
+      payBtn.innerText = `Pay $${(cart.length * 5).toFixed(2)}`;
+      validatePaymentInputs();
     });
 
     function closeCheckout() {
-      document.getElementById("checkoutModal").style.display = "none";
+      checkoutModal.style.display = "none";
+      clearCheckoutInputs();
     }
+
+    document.querySelector("#checkoutModal .close").addEventListener("click", closeCheckout);
+
+    // Payment inputs validation: enable Pay button only if all filled
+    const paymentInputs = [
+      document.getElementById("cardNumber"),
+      document.getElementById("cvv"),
+      document.getElementById("expiration"),
+      document.getElementById("nameOnCard"),
+      document.getElementById("email"),
+      document.getElementById("billingAddress"),
+    ];
+
+    paymentInputs.forEach(input => {
+      input.addEventListener("input", validatePaymentInputs);
+    });
+
+    function validatePaymentInputs() {
+      const allFilled = paymentInputs.every(input => input.value.trim() !== "");
+      if (allFilled && cart.length > 0) {
+        payBtn.disabled = false;
+        payBtn.classList.add("enabled");
+      } else {
+        payBtn.disabled = true;
+        payBtn.classList.remove("enabled");
+      }
+    }
+
+    function clearCheckoutInputs() {
+      paymentInputs.forEach(input => input.value = "");
+      payBtn.disabled = true;
+      payBtn.classList.remove("enabled");
+    }
+
+    payBtn.addEventListener("click", () => {
+      if (payBtn.disabled) return;
+      alert("Payment successful! Thank you for your purchase.");
+      // Reset cart and UI
+      cart = [];
+      document.getElementById("cart-count").innerText = "0";
+      updateCart();
+      closeCheckout();
+      closeCart();
+    });
+
+    // Initialize preview
+    updatePreview();
   </script>
 </body>
 </html>
