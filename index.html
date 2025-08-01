@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Carved3d</title>
   <style>
     body {
@@ -41,7 +41,7 @@
       cursor: pointer;
     }
 
-    .popup, .cart-popup {
+    .popup, .cart-popup, #checkoutModal {
       display: none;
       position: fixed;
       top: 50%;
@@ -57,7 +57,7 @@
       max-width: 500px;
     }
 
-    .popup .close, .cart-popup .close {
+    .popup .close, .cart-popup .close, #checkoutModal .close {
       position: absolute;
       top: 10px;
       right: 15px;
@@ -117,23 +117,41 @@
       border-radius: 100px;
       background: gray;
     }
+
+    #checkoutModal input {
+      width: 90%;
+      margin: 10px auto;
+      padding: 10px;
+      display: block;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    #checkoutModal .finish-btn {
+      margin-top: 20px;
+      background: #28a745;
+      color: white;
+      font-size: 1.2rem;
+    }
   </style>
 </head>
 <body>
   <div class="cart-icon" onclick="openCart()">
     🛒<span id="cart-count">0</span>
   </div>
+
   <header>Carved3d</header>
   <div class="main-title">Carved3d</div>
   <div class="description">Design your own custom mini snowboard. Choose colors, patterns, and make it yours!</div>
   <button class="shop-button" onclick="openPopup()">Shop Now</button>
 
+  <!-- Design Popup -->
   <div class="popup" id="popup">
     <div class="close" onclick="closePopup()">✕</div>
     <h2>Shop</h2>
-    <div class="snowboard-outline" id="snowboardPreview"></div>
+    <div class="snowboard-outline" id="snowboardPreview" style="background: repeating-linear-gradient(45deg, rgb(0, 110, 255) 0px, rgb(0, 110, 255) 10px, transparent 10px, transparent 20px) rgb(205, 66, 66);"></div>
     <label>Base Color</label>
-    <input type="color" class="color-wheel" id="baseColor" />
+    <input type="color" class="color-wheel" id="baseColor">
     <label>Pattern</label>
     <select class="pattern-select" id="patternSelect">
       <option value="none">None</option>
@@ -142,16 +160,30 @@
       <option value="gradient">Gradient</option>
     </select>
     <label>Pattern Color</label>
-    <input type="color" class="pattern-color" id="patternColor" />
+    <input type="color" class="pattern-color" id="patternColor">
     <button class="finish-btn" onclick="finishDesign()">Finish</button>
   </div>
 
+  <!-- Cart Popup -->
   <div class="cart-popup" id="cartPopup">
     <div class="close" onclick="closeCart()">✕</div>
     <h2>Your Cart</h2>
     <div id="cartItems"></div>
     <p>Total: $<span id="totalPrice">0.00</span></p>
-    <button class="finish-btn">Checkout</button>
+    <button class="finish-btn" id="openCheckoutBtn">Checkout</button>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div class="popup" id="checkoutModal">
+    <div class="close" onclick="closeCheckout()">✕</div>
+    <h2>Checkout</h2>
+    <input type="text" placeholder="Card Number">
+    <input type="text" placeholder="CVV">
+    <input type="text" placeholder="Expiration (MM/YY)">
+    <input type="text" placeholder="Name on Card">
+    <input type="email" placeholder="Email">
+    <input type="text" placeholder="Billing Address">
+    <button class="finish-btn" id="payBtn">Pay $0.00</button>
   </div>
 
   <script>
@@ -228,6 +260,17 @@
 
       preview.style.background = base;
       preview.style.backgroundImage = getPattern(pattern, patternColor);
+    }
+
+    // Checkout Modal
+    document.getElementById("openCheckoutBtn").addEventListener("click", () => {
+      const total = cart.length * 5;
+      document.getElementById("payBtn").innerText = `Pay $${total.toFixed(2)}`;
+      document.getElementById("checkoutModal").style.display = "block";
+    });
+
+    function closeCheckout() {
+      document.getElementById("checkoutModal").style.display = "none";
     }
   </script>
 </body>
