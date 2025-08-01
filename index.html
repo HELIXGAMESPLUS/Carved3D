@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Carved3d</title>
   <style>
     body {
       margin: 0;
       font-family: sans-serif;
-      background: url('https://i.imgur.com/sb5p1gH.jpg') center/cover no-repeat fixed;
+      background: url('https://images.pexels.com/photos/773594/pexels-photo-773594.jpeg?cs=srgb&dl=branches-cold-conifers-773594.jpg&fm=jpg') center/cover no-repeat fixed;
       color: white;
       text-align: center;
     }
@@ -133,7 +132,7 @@
     <h2>Shop</h2>
     <div class="snowboard-outline" id="snowboardPreview"></div>
     <label>Base Color</label>
-    <input type="color" class="color-wheel" id="baseColor" />
+    <input type="color" class="color-wheel" id="baseColor">
     <label>Pattern</label>
     <select class="pattern-select" id="patternSelect">
       <option value="none">None</option>
@@ -142,7 +141,7 @@
       <option value="gradient">Gradient</option>
     </select>
     <label>Pattern Color</label>
-    <input type="color" class="pattern-color" id="patternColor" />
+    <input type="color" class="pattern-color" id="patternColor">
     <button class="finish-btn" onclick="finishDesign()">Finish</button>
   </div>
 
@@ -206,11 +205,11 @@
     function getPattern(pattern, color) {
       switch(pattern) {
         case "stripes":
-          return `repeating-linear-gradient(45deg, ${color} 0 10px, transparent 10px 20px)`;
+          return repeating-linear-gradient(45deg, ${color} 0 10px, transparent 10px 20px);
         case "dots":
-          return `radial-gradient(${color} 10%, transparent 11%)`;
+          return radial-gradient(${color} 10%, transparent 11%);
         case "gradient":
-          return `linear-gradient(90deg, ${color}, white)`;
+          return linear-gradient(90deg, ${color}, white);
         default:
           return "none";
       }
@@ -230,5 +229,6 @@
       preview.style.backgroundImage = getPattern(pattern, patternColor);
     }
   </script>
-</body>
-</html>
+
+
+</body></html>
